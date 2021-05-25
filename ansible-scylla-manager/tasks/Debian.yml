@@ -19,10 +19,10 @@
     - name: refresh apt cache
       apt:
         update_cache: yes
-        cache_valid_time: 600
-        name: "*"
-        state: latest
-        force_apt_get: yes
+        # cache_valid_time: 600
+        # name: "*"
+        # state: latest
+        # force_apt_get: yes
 
     - name: install the manager agent
       apt:
@@ -31,8 +31,7 @@
           - scylla-manager-client
         state: present
       when:
-        - enable_upgrade is not defined
-        - enable_upgrade is defined and enable_upgrade|bool == False
+        - (enable_upgrade is not defined) or (enable_upgrade is defined and enable_upgrade|bool == False)
 
     - name: install the manager agent
       apt:

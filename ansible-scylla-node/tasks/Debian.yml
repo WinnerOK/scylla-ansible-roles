@@ -104,17 +104,17 @@
 
     - name: refresh apt cache
       apt:
-        name: "*"
-        state: latest
-        force_apt_get: yes
+        # name: "*"
+        # state: latest
+        # force_apt_get: yes
+        update_cache: true
 
     - name: install the manager agent
       apt:
         name: scylla-manager-agent
         state: present
       when:
-        - scylla_manager_agent_upgrade is not defined
-        - scylla_manager_agent_upgrade|bool == False
+        - (scylla_manager_agent_upgrade is not defined) or (scylla_manager_agent_upgrade|bool == False)
 
     - name: install the latest manager agent
       apt:
