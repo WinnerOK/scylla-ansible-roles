@@ -1,6 +1,9 @@
 Updates from forked repo:
 1. In `ansible-scylla-node` and `ansible-scylla-manager` fix apt cache updated after add service repo.
 1. In `ansible-scylla-node` and `ansible-scylla-manager` fix contradictory `and` logical statements
+1. In `ansible-scylla-node` and `ansible-scylla-manager` add `scylla_broadcast_rpc_address` config
+
+
 # Scylla Ansible Roles
 
 This repo contains the Ansible roles and example playbooks used for deploiying and maintaining Scylla clusters.
