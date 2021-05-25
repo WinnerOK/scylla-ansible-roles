@@ -1,0 +1,78 @@
+---
+- name: generate a self-signed CA and use it for node certs
+  block:
+    - name: Create dir for the CA
+      file:
+        path: ./ssl/ca
+        state: directory
+
+    - name: Generate an OpenSSL private key for the CA.
+      openssl_privatekey:
+        path: "./ssl/ca/{{ scylla_cluster_name }}-ca.pem"
+
+    - name: Generate an OpenSSL Certificate Signing Request for the CA
+      openssl_csr:
+        path: "./ssl/ca/{{ scylla_cluster_name }}-ca.csr"
+        privatekey_path: "./ssl/ca/{{ scylla_cluster_name }}-ca.pem"
+        common_name: "{{ scylla_cluster_name }}.internal"
+
+    - name: Generate a Self Signed OpenSSL certificate for the CA
+      openssl_certificate:
+        path: "./ssl/ca/{{scylla_cluster_name }}-ca.crt"
+        privatekey_path: "./ssl/ca/{{ scylla_cluster_name }}-ca.pem"
+        csr_path: "./ssl/ca/{{ scylla_cluster_name }}-ca.csr"
+        issuer:
+          commonName: "{{ scylla_cluster_name }}.internal"
+        provider: selfsigned
+  delegate_to: localhost
+  run_once: true
+
+- name: Generate keys signed by the local CA and push them to the nodes
+  block:
+    - name: Create a directory for the key
+      file:
+        path: "./ssl/{{ inventory_hostname }}"
+        state: directory
+      delegate_to: localhost
+
+    - name: Generate an OpenSSL private key.
+      openssl_privatekey:
+        path: "./ssl/{{ inventory_hostname }}/{{ inventory_hostname }}.pem"
+      delegate_to: localhost
+
+    - name: Generate an OpenSSL Certificate Signing Request
+      openssl_csr:
+        path: "./ssl/{{ inventory_hostname }}/{{ inventory_hostname }}.csr"
+        privatekey_path: "./ssl/{{ inventory_hostname }}/{{ inventory_hostname }}.pem"
+        common_name: "{{ inventory_hostname }}.{{ scylla_cluster_name }}.internal"
+      delegate_to: localhost
+
+    - name: Generate an OpenSSL certificate signed with our CA certificate
+      openssl_certificate:
+        path: "./ssl/{{ inventory_hostname }}/{{ inventory_hostname }}.crt"
+        csr_path: "./ssl/{{ inventory_hostname }}/{{ inventory_hostname }}.csr"
+        ownca_path: "./ssl/ca/{{scylla_cluster_name }}-ca.crt"
+        ownca_privatekey_path: "./ssl/ca/{{ scylla_cluster_name }}-ca.pem"
+        provider: ownca
+      delegate_to: localhost
+
+    - name: Copy the certificates into their proper locations
+      copy:
+        src: "{{ item }}"
+        dest: "{{ scylla_ssl.cert_path }}/{{ item | basename }}"
+        owner: root
+        group: root
+        mode: '0644'
+      become: true
+      loop:
+        - "./ssl/ca/{{ scylla_cluster_name }}-ca.crt"
+        - "./ssl/{{ inventory_hostname }}/{{ inventory_hostname }}.crt"
+        - "./ssl/{{ inventory_hostname }}/{{ inventory_hostname }}.pem"
+
+- name: Generate cqlshrc
+  template:
+    src: templates/cqlshrc.j2
+    dest: ./cqlshrc
+  delegate_to: localhost
+  run_once: true
+

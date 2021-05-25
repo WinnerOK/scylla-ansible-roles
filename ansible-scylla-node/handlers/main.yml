@@ -1,0 +1,44 @@
+---
+- name: reload systemd configuration
+  become: true
+  systemd:
+    daemon_reload: true
+
+- name: scylla restart
+  become: true
+  service:
+    name: scylla-server
+    state: restarted
+    enabled: yes
+
+- name: scylla stop
+  become: true
+  service:
+    name: scylla-server
+    state: stopped
+
+- name: node_exporter start
+  become: true
+  service:
+    name: node-exporter
+    state: started
+    enabled: yes
+
+- name: scylla-manager-agent start
+  become: true
+  service:
+    name: scylla-manager-agent
+    state: started
+    enabled: true
+
+- name: scylla-manager-agent stop
+  become: true
+  service:
+    name: scylla-manager-agent
+    state: stopped
+
+- name: scylla-manager-agent restart
+  become: true
+  service:
+    name: scylla-manager-agent
+    state: restarted
