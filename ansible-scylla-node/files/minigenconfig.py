@@ -40,7 +40,9 @@ success = False
 
 while not success and retries > 0:
     sleep(10)
-    r = json.loads(subprocess.check_output(['curl', '-s', url]))
+    # fixes issue in python3.5: json.loads accepts string instead of byte-string
+    curl_output = subprocess.check_output(['curl', '-s', url]).decode()
+    r = json.loads(curl_output)
     success, out = read_endpoints(r, args.cluster_name)
     retries -= 1
 
