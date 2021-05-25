@@ -3,6 +3,7 @@ Updates in forked repo:
 1. In `ansible-scylla-node` and `ansible-scylla-manager` fix contradictory `and` logical statements
 1. In `ansible-scylla-node` and `ansible-scylla-manager` add `scylla_broadcast_rpc_address` config
 1. In `ansible-scylla-node/files/minigenconfig.py` convert curl output to string since `json.loads` does not accept byte-string in python3.5 
+1. In `ansible-scylla-monitoring/tasks/Debian` replace `ubuntu` repositories to `debian`
 
 
 # Scylla Ansible Roles

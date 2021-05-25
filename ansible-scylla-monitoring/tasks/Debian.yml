@@ -38,12 +38,12 @@
 
   - name: add docker's apt key
     apt_key:
-      url: "https://download.docker.com/linux/ubuntu/gpg"
+      url: "https://download.docker.com/linux/debian/gpg"
       state: present
 
   - name: add repo
     shell: |
-      sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+      sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
 
   - name: Upgrade all packages to the latest version (again)
     apt:
